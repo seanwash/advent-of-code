@@ -1,0 +1,26 @@
+{
+    "name": "seanwashington/advent-of-code",
+    "autoload": {
+        "psr-4": {
+            "SWW\\AOC\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Sean Washington",
+            "email": "hello@seanwash.com"
+        }
+    ],
+    "require": {
+        "php": "^8.0",
+        "illuminate/collections": "^8.74"
+    },
+    "require-dev": {
+        "pestphp/pest": "^1.21"
+    }
+}
