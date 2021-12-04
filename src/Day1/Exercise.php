@@ -8,46 +8,45 @@ use Illuminate\Support\Collection;
 class Exercise
 {
     private array $depths;
-    private int $lastDepthValue;
-    private int $depthIncreaseCount = 0;
 
     public function __construct(array $input = null)
     {
         $this->depths = $input ?: $this->getInput();
-
-        // The first depth doesn't need to be compared against anything
-        // so we can set it as the first depth value and 😱 mutate $depths.
-        $this->lastDepthValue = (int) array_shift($this->depths);
     }
 
     public function part1(): int
     {
-        collect($this->depths)
-            ->pipe(fn($value) => $this->countDepths($value));
-
-        return $this->depthIncreaseCount;
+        return $this->countDepths($this->depths);
     }
 
     public function part2(): int
     {
-        collect($this->depths)
-            ->sliding(3)
-            ->map(fn(Collection $value) => array_sum($value->toArray()))
-            ->pipe(fn($value) => $this->countDepths($value));
-
-        return $this->depthIncreaseCount;
+        return $this->countDepths($this->depths, 3);
     }
 
-    private function countDepths(Collection $values): Collection
+    private function countDepths(array $values, int|null $windowSize = null): int
     {
-        return $values
-            ->each(function ($value, $key) {
-                if ($value > $this->lastDepthValue) {
-                    $this->depthIncreaseCount += 1;
+        $collection = collect($values);
+        // The first depth doesn't need to be compared against anything
+        // so we can set it as the first depth value and 😱 mutate $depths.
+        $lastDepthValue = (int) $collection->shift();
+        $depthIncreaseCount = 0;
+
+        $collection
+            ->when($windowSize, function ($value) {
+                return $value
+                    ->sliding(3)
+                    ->map(fn(Collection $value) => array_sum($value->toArray()));
+            })
+            ->each(function ($value) use (&$lastDepthValue, &$depthIncreaseCount) {
+                if ($value > $lastDepthValue) {
+                    $depthIncreaseCount += 1;
                 }
 
-                $this->lastDepthValue = $value;
+                $lastDepthValue = $value;
             });
+
+        return $depthIncreaseCount;
     }
 
     private function getInput(): array
